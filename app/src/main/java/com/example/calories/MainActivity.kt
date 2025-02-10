@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -26,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,8 +64,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CalorieApp(modifier: Modifier = Modifier){
     var weightInput by remember {mutableStateOf("")}
+    val weight = weightInput.toIntOrNull() ?:0
     var male by remember {mutableStateOf(true)}
     var intensity by remember {mutableStateOf(1.3f)}
+    var result by remember{mutableIntStateOf(0)}
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -70,6 +76,17 @@ fun CalorieApp(modifier: Modifier = Modifier){
         WeightField(weightInput = weightInput, onValueChange= {weightInput = it})
         GenderChoices(male, setGenderMale = {male = it})
         IntensityList (onClick={intensity = it})
+        Text(
+            text = result.toString(),
+            color = MaterialTheme.colorScheme.secondary,
+            fontWeight = FontWeight.Bold
+        )
+        Calculation(
+            male= male,
+            weight = weight,
+            intensity = intensity,
+            setResult = { result = it}
+        )
 
     }
 
@@ -177,5 +194,21 @@ fun IntensityList(onClick: (Float) -> Unit) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun Calculation(male:Boolean, weight: Int, intensity: Float, setResult:(Int)->Unit){
+    Button(
+        onClick = {
+            if(male){
+                setResult(((879 +10.2 * weight) * intensity).toInt())
+            } else{
+                setResult(((795 +7.18 * weight)* intensity).toInt())
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    ){
+        Text(text = "CALCULATE")
     }
 }
